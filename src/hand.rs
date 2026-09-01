@@ -23,7 +23,7 @@
 //!     CardInt::CardJs, CardInt::CardTs,
 //! ];
 //!
-//! assert_eq!(suit_bitwise_and(royal_flush), 0x1);   // spades
+//! assert_eq!(suit_bitwise_and(royal_flush), 0x1000); // spades
 //! assert_eq!(rank_bitwise_or(royal_flush), 0x1F00); // A K Q J T bits
 //! assert_eq!(prime_product(royal_flush), 41 * 37 * 31 * 29 * 23);
 //! ```
@@ -38,11 +38,11 @@ use crate::CardInt;
 /// the result is non-zero only when every card shares the same suit bit.
 ///
 /// # Returns
-/// A `u8` with one of the suit bits set (`0x1` spades, `0x2` hearts,
-/// `0x4` diamonds, `0x8` clubs) when the hand is flush, or `0x0` otherwise.
+/// A `u16` with one of the suit bits set (`0x1000` spades, `0x2000` hearts,
+/// `0x4000` diamonds, `0x8000` clubs) when the hand is flush, or `0x0` otherwise.
 #[must_use]
-pub fn suit_bitwise_and(hand: &[CardInt]) -> u8 {
-    (hand.iter().fold(0xF000, |a, b| a & *b as u32) >> 12) as u8
+pub fn suit_bitwise_and(hand: &[CardInt]) -> u16 {
+    (hand.iter().fold(0xF000, |a, b| a & *b as u32)) as u16
 }
 
 /// Returns a bitmask with one bit set per distinct rank present in the hand.
@@ -80,14 +80,14 @@ mod blog_example_tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case(&[CardInt::CardAs], 0x1)]
+    #[case(&[CardInt::CardAs], 0x1000)]
     #[case(&[CardInt::CardAs, CardInt::CardKh], 0x0)]
-    #[case(&[CardInt::CardAs, CardInt::CardKs, CardInt::CardQs, CardInt::CardJs, CardInt::CardTs], 0x1)]
-    #[case(&[CardInt::CardAh, CardInt::CardKh, CardInt::CardQh, CardInt::CardJh, CardInt::CardTh], 0x2)]
-    #[case(&[CardInt::CardAd, CardInt::CardKd, CardInt::CardQd, CardInt::CardJd, CardInt::CardTd], 0x4)]
-    #[case(&[CardInt::CardAc, CardInt::CardKc, CardInt::CardQc, CardInt::CardJc, CardInt::CardTc], 0x8)]
+    #[case(&[CardInt::CardAs, CardInt::CardKs, CardInt::CardQs, CardInt::CardJs, CardInt::CardTs], 0x1000)]
+    #[case(&[CardInt::CardAh, CardInt::CardKh, CardInt::CardQh, CardInt::CardJh, CardInt::CardTh], 0x2000)]
+    #[case(&[CardInt::CardAd, CardInt::CardKd, CardInt::CardQd, CardInt::CardJd, CardInt::CardTd], 0x4000)]
+    #[case(&[CardInt::CardAc, CardInt::CardKc, CardInt::CardQc, CardInt::CardJc, CardInt::CardTc], 0x8000)]
     #[case(&[CardInt::CardAs, CardInt::CardKh, CardInt::CardQd, CardInt::CardJc, CardInt::CardTs], 0x0)]
-    fn test_suit_bitwise_and(#[case] hand: &[CardInt], #[case] expected: u8) {
+    fn test_suit_bitwise_and(#[case] hand: &[CardInt], #[case] expected: u16) {
         assert_eq!(suit_bitwise_and(hand), expected);
     }
 
