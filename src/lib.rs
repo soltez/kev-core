@@ -35,6 +35,9 @@
 
 pub mod hand;
 
+/// Prime numbers assigned to each rank, indexed by rank discriminant (0 = Deuce, 12 = Ace).
+pub const PRIMES: [u8; 13] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41];
+
 /// The rank of a playing card, ordered from lowest (Deuce) to highest (Ace).
 ///
 /// The discriminant value is used to access the `PRIMES` table as an index,
@@ -375,21 +378,7 @@ impl CardInt {
     /// Constructs a `CardInt` from a [`Rank`] and [`Suit`] by computing the
     /// Cactus Kev bit pattern directly.
     fn _new(rank: &Rank, suit: &Suit) -> CardInt {
-        let prime: u32 = match rank {
-            Rank::Deuce => 2,
-            Rank::Trey => 3,
-            Rank::Four => 5,
-            Rank::Five => 7,
-            Rank::Six => 11,
-            Rank::Seven => 13,
-            Rank::Eight => 17,
-            Rank::Nine => 19,
-            Rank::Ten => 23,
-            Rank::Jack => 29,
-            Rank::Queen => 31,
-            Rank::King => 37,
-            Rank::Ace => 41,
-        };
+        let prime: u32 = PRIMES[*rank as usize] as u32;
         let rank_nib: u32 = (*rank as u32) << 8;
         let suit_nib: u32 = (*suit as u32) << 12;
         let onehot: u32 = 1 << (*rank as u32) << 16;
