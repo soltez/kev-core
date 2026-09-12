@@ -38,6 +38,72 @@ pub mod hand;
 /// Prime numbers assigned to each rank, indexed by rank discriminant (0 = Deuce, 12 = Ace).
 pub const PRIMES: [u8; 13] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41];
 
+/// ASCII byte representations of all 52 cards, indexed by `rank * 4 + suit_index`.
+/// Suit index: spades=0, hearts=1, diamonds=2, clubs=3.
+const CARD_BYTES: [&[u8]; 52] = [
+    b"2s", b"2h", b"2d", b"2c", b"3s", b"3h", b"3d", b"3c", b"4s", b"4h", b"4d", b"4c", b"5s",
+    b"5h", b"5d", b"5c", b"6s", b"6h", b"6d", b"6c", b"7s", b"7h", b"7d", b"7c", b"8s", b"8h",
+    b"8d", b"8c", b"9s", b"9h", b"9d", b"9c", b"Ts", b"Th", b"Td", b"Tc", b"Js", b"Jh", b"Jd",
+    b"Jc", b"Qs", b"Qh", b"Qd", b"Qc", b"Ks", b"Kh", b"Kd", b"Kc", b"As", b"Ah", b"Ad", b"Ac",
+];
+
+/// Unicode suit string representations of all 52 cards, indexed by `rank * 4 + suit_index`.
+/// Suit index: spades=0, hearts=1, diamonds=2, clubs=3.
+const CARD_STRS: [&str; 52] = [
+    "2\u{2660}",
+    "2\u{2665}",
+    "2\u{2666}",
+    "2\u{2663}",
+    "3\u{2660}",
+    "3\u{2665}",
+    "3\u{2666}",
+    "3\u{2663}",
+    "4\u{2660}",
+    "4\u{2665}",
+    "4\u{2666}",
+    "4\u{2663}",
+    "5\u{2660}",
+    "5\u{2665}",
+    "5\u{2666}",
+    "5\u{2663}",
+    "6\u{2660}",
+    "6\u{2665}",
+    "6\u{2666}",
+    "6\u{2663}",
+    "7\u{2660}",
+    "7\u{2665}",
+    "7\u{2666}",
+    "7\u{2663}",
+    "8\u{2660}",
+    "8\u{2665}",
+    "8\u{2666}",
+    "8\u{2663}",
+    "9\u{2660}",
+    "9\u{2665}",
+    "9\u{2666}",
+    "9\u{2663}",
+    "T\u{2660}",
+    "T\u{2665}",
+    "T\u{2666}",
+    "T\u{2663}",
+    "J\u{2660}",
+    "J\u{2665}",
+    "J\u{2666}",
+    "J\u{2663}",
+    "Q\u{2660}",
+    "Q\u{2665}",
+    "Q\u{2666}",
+    "Q\u{2663}",
+    "K\u{2660}",
+    "K\u{2665}",
+    "K\u{2666}",
+    "K\u{2663}",
+    "A\u{2660}",
+    "A\u{2665}",
+    "A\u{2666}",
+    "A\u{2663}",
+];
+
 /// The rank of a playing card, ordered from lowest (Deuce) to highest (Ace).
 ///
 /// The discriminant value is used to access the `PRIMES` table as an index,
@@ -417,10 +483,32 @@ impl CardInt {
     pub fn suit(&self) -> Suit {
         Suit::from_u8((*self as u32 >> 12 & 0xF) as u8).unwrap()
     }
+
+    /// Returns the Unicode suit string representation of this card (e.g. "A\u{2660}", "T\u{2666}").
+    #[must_use]
+    pub fn as_str(&self) -> &'static str {
+        CARD_STRS[Self::flat_index(self)]
+    }
+
+    fn flat_index(&self) -> usize {
+        let byte = self.to_u8();
+        let rank = (byte & 0xF) as u32;
+        let suit = (byte >> 4).trailing_zeros();
+        (rank * 4 + suit) as usize
+    }
+}
+
+impl core::fmt::Display for CardInt {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let bytes = CARD_BYTES[self.flat_index()];
+        // SAFETY: CARD_BYTES contains ASCII string literals, guaranteed valid UTF-8.
+        f.write_str(unsafe { core::str::from_utf8_unchecked(bytes) })
+    }
 }
 
 #[cfg(test)]
 mod card_integer_tests {
+    extern crate std;
     use super::{CardInt, Rank, Suit};
     use rstest::rstest;
 
@@ -625,5 +713,19 @@ mod card_integer_tests {
     #[case(0x3F)]
     fn from_u8_invalid(#[case] byte: u8) {
         assert_eq!(CardInt::from_u8(byte), None);
+    }
+
+    #[rstest]
+    #[rstest]
+    #[case(CardInt::CardAs, "As", "A\u{2660}")]
+    #[case(CardInt::CardAh, "Ah", "A\u{2665}")]
+    #[case(CardInt::CardAd, "Ad", "A\u{2666}")]
+    #[case(CardInt::CardAc, "Ac", "A\u{2663}")]
+    #[case(CardInt::CardKs, "Ks", "K\u{2660}")]
+    #[case(CardInt::CardTs, "Ts", "T\u{2660}")]
+    #[case(CardInt::Card2c, "2c", "2\u{2663}")]
+    fn card_str(#[case] card: CardInt, #[case] ascii: &str, #[case] unicode: &str) {
+        assert_eq!(std::format!("{}", card), ascii);
+        assert_eq!(card.as_str(), unicode);
     }
 }
