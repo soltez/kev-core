@@ -47,63 +47,6 @@ const CARD_BYTES: [&[u8]; 52] = [
     b"Jc", b"Qs", b"Qh", b"Qd", b"Qc", b"Ks", b"Kh", b"Kd", b"Kc", b"As", b"Ah", b"Ad", b"Ac",
 ];
 
-/// Unicode suit string representations of all 52 cards, indexed by `rank * 4 + suit_index`.
-/// Suit index: spades=0, hearts=1, diamonds=2, clubs=3.
-const CARD_STRS: [&str; 52] = [
-    "2\u{2660}",
-    "2\u{2665}",
-    "2\u{2666}",
-    "2\u{2663}",
-    "3\u{2660}",
-    "3\u{2665}",
-    "3\u{2666}",
-    "3\u{2663}",
-    "4\u{2660}",
-    "4\u{2665}",
-    "4\u{2666}",
-    "4\u{2663}",
-    "5\u{2660}",
-    "5\u{2665}",
-    "5\u{2666}",
-    "5\u{2663}",
-    "6\u{2660}",
-    "6\u{2665}",
-    "6\u{2666}",
-    "6\u{2663}",
-    "7\u{2660}",
-    "7\u{2665}",
-    "7\u{2666}",
-    "7\u{2663}",
-    "8\u{2660}",
-    "8\u{2665}",
-    "8\u{2666}",
-    "8\u{2663}",
-    "9\u{2660}",
-    "9\u{2665}",
-    "9\u{2666}",
-    "9\u{2663}",
-    "T\u{2660}",
-    "T\u{2665}",
-    "T\u{2666}",
-    "T\u{2663}",
-    "J\u{2660}",
-    "J\u{2665}",
-    "J\u{2666}",
-    "J\u{2663}",
-    "Q\u{2660}",
-    "Q\u{2665}",
-    "Q\u{2666}",
-    "Q\u{2663}",
-    "K\u{2660}",
-    "K\u{2665}",
-    "K\u{2666}",
-    "K\u{2663}",
-    "A\u{2660}",
-    "A\u{2665}",
-    "A\u{2666}",
-    "A\u{2663}",
-];
-
 /// The rank of a playing card, ordered from lowest (Deuce) to highest (Ace).
 ///
 /// The discriminant value is used to access the `PRIMES` table as an index,
@@ -488,12 +431,6 @@ impl CardInt {
         Suit::from_u8((*self as u32 >> 12 & 0xF) as u8).unwrap()
     }
 
-    /// Returns the Unicode suit string representation of this card (e.g. "A\u{2660}", "T\u{2666}").
-    #[must_use]
-    pub fn as_str(&self) -> &'static str {
-        CARD_STRS[Self::flat_index(self)]
-    }
-
     fn flat_index(&self) -> usize {
         let byte = self.to_u8();
         let rank = (byte & 0xF) as u32;
@@ -720,16 +657,14 @@ mod card_integer_tests {
     }
 
     #[rstest]
-    #[rstest]
-    #[case(CardInt::CardAs, "As", "A\u{2660}")]
-    #[case(CardInt::CardAh, "Ah", "A\u{2665}")]
-    #[case(CardInt::CardAd, "Ad", "A\u{2666}")]
-    #[case(CardInt::CardAc, "Ac", "A\u{2663}")]
-    #[case(CardInt::CardKs, "Ks", "K\u{2660}")]
-    #[case(CardInt::CardTs, "Ts", "T\u{2660}")]
-    #[case(CardInt::Card2c, "2c", "2\u{2663}")]
-    fn card_str(#[case] card: CardInt, #[case] ascii: &str, #[case] unicode: &str) {
-        assert_eq!(std::format!("{}", card), ascii);
-        assert_eq!(card.as_str(), unicode);
+    #[case(CardInt::CardAs, "As")]
+    #[case(CardInt::CardAh, "Ah")]
+    #[case(CardInt::CardAd, "Ad")]
+    #[case(CardInt::CardAc, "Ac")]
+    #[case(CardInt::CardKs, "Ks")]
+    #[case(CardInt::CardTs, "Ts")]
+    #[case(CardInt::Card2c, "2c")]
+    fn card_display(#[case] card: CardInt, #[case] expected: &str) {
+        assert_eq!(std::format!("{}", card), expected);
     }
 }
