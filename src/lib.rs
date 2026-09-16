@@ -367,7 +367,38 @@ pub enum CardInt {
 }
 
 impl CardInt {
-    fn from_u32(n: u32) -> Option<Self> {
+    /// Constructs a `CardInt` from a two-character string such as `"As"` or `"Td"`.
+    ///
+    /// The first character is parsed as a [`Rank`] via `Rank::from_char` and
+    /// the second as a [`Suit`] via `Suit::from_char`. Returns `None` if either
+    /// character is unrecognised or the string is not exactly two characters long.
+    #[must_use]
+    pub fn new(s: &str) -> Option<Self> {
+        let mut chars = s.chars();
+        let rank = Rank::from_char(chars.next()?)?;
+        let suit = Suit::from_char(chars.next()?)?;
+        if chars.next().is_some() {
+            return None;
+        }
+        Some(Self::new_impl(&rank, &suit))
+    }
+
+    /// Reconstructs a [`CardInt`] from a byte produced by [`CardInt::to_u8`].
+    ///
+    /// Returns `None` if `byte` does not encode a valid (suit, rank) combination.
+    #[must_use]
+    pub fn from_u8(byte: u8) -> Option<Self> {
+        let rank = Rank::from_u8(byte & 0xF)?;
+        let suit = Suit::from_u8(byte >> 4)?;
+        Some(Self::new_impl(&rank, &suit))
+    }
+
+    /// Reconstructs a [`CardInt`] from a raw Cactus Kev `u32` bit pattern.
+    ///
+    /// Returns `None` if `n` does not exactly match one of the 52 valid card
+    /// encodings.
+    #[must_use]
+    pub fn from_u32(n: u32) -> Option<Self> {
         match n {
             0x10001C29 => Some(Self::CardAs),
             0x08001B25 => Some(Self::CardKs),
@@ -425,22 +456,6 @@ impl CardInt {
         }
     }
 
-    /// Constructs a `CardInt` from a two-character string such as `"As"` or `"Td"`.
-    ///
-    /// The first character is parsed as a [`Rank`] via `Rank::from_char` and
-    /// the second as a [`Suit`] via `Suit::from_char`. Returns `None` if either
-    /// character is unrecognised or the string is not exactly two characters long.
-    #[must_use]
-    pub fn new(s: &str) -> Option<Self> {
-        let mut chars = s.chars();
-        let rank = Rank::from_char(chars.next()?)?;
-        let suit = Suit::from_char(chars.next()?)?;
-        if chars.next().is_some() {
-            return None;
-        }
-        Some(Self::new_impl(&rank, &suit))
-    }
-
     /// Constructs a `CardInt` from a [`Rank`] and [`Suit`] by computing the
     /// Cactus Kev bit pattern directly.
     fn new_impl(rank: &Rank, suit: &Suit) -> CardInt {
@@ -459,17 +474,6 @@ impl CardInt {
     #[must_use]
     pub fn to_u8(&self) -> u8 {
         (*self as u32 >> 8) as u8
-    }
-
-    /// Reconstructs a [`CardInt`] from a byte produced by [`CardInt::to_u8`].
-    ///
-    /// Returns `None` if `byte` is `0` (absent card sentinel) or does not
-    /// encode a valid (suit, rank) combination.
-    #[must_use]
-    pub fn from_u8(byte: u8) -> Option<Self> {
-        let rank = Rank::from_u8(byte & 0xF)?;
-        let suit = Suit::from_u8(byte >> 4)?;
-        Some(Self::new_impl(&rank, &suit))
     }
 
     /// Extracts the [`Rank`] from this card's face-value field (bits 8–11).
