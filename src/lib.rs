@@ -380,7 +380,7 @@ impl CardInt {
         if chars.next().is_some() {
             return None;
         }
-        Some(Self::new_impl(&rank, &suit))
+        Some(Self::new_impl(rank, suit))
     }
 
     /// Reconstructs a [`CardInt`] from a byte produced by [`CardInt::to_u8`].
@@ -390,7 +390,7 @@ impl CardInt {
     pub fn from_u8(byte: u8) -> Option<Self> {
         let rank = Rank::from_u8(byte & 0xF)?;
         let suit = Suit::from_u8(byte >> 4)?;
-        Some(Self::new_impl(&rank, &suit))
+        Some(Self::new_impl(rank, suit))
     }
 
     /// Reconstructs a [`CardInt`] from a raw Cactus Kev `u32` bit pattern.
@@ -458,11 +458,11 @@ impl CardInt {
 
     /// Constructs a `CardInt` from a [`Rank`] and [`Suit`] by computing the
     /// Cactus Kev bit pattern directly.
-    fn new_impl(rank: &Rank, suit: &Suit) -> CardInt {
-        let prime: u32 = PRIMES[*rank as usize] as u32;
-        let rank_nib: u32 = (*rank as u32) << 8;
-        let suit_nib: u32 = (*suit as u32) << 12;
-        let onehot: u32 = 1 << (*rank as u32) << 16;
+    fn new_impl(rank: Rank, suit: Suit) -> CardInt {
+        let prime: u32 = PRIMES[rank as usize] as u32;
+        let rank_nib: u32 = (rank as u32) << 8;
+        let suit_nib: u32 = (suit as u32) << 12;
+        let onehot: u32 = 1 << (rank as u32) << 16;
         Self::from_u32(prime | rank_nib | suit_nib | onehot).unwrap()
     }
 
@@ -579,7 +579,7 @@ mod card_integer_tests {
     #[case(Rank::Trey, Suit::Club, CardInt::Card3c)]
     #[case(Rank::Deuce, Suit::Club, CardInt::Card2c)]
     fn binary_literal_integrity(#[case] rank: Rank, #[case] suit: Suit, #[case] card: CardInt) {
-        assert_eq!(CardInt::new_impl(&rank, &suit), card);
+        assert_eq!(CardInt::new_impl(rank, suit), card);
         assert_eq!(card.rank(), rank);
         assert_eq!(card.suit(), suit);
     }
