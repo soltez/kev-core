@@ -458,7 +458,7 @@ impl CardInt {
 
     /// Constructs a `CardInt` from a [`Rank`] and [`Suit`] by computing the
     /// Cactus Kev bit pattern directly.
-    fn new_impl(rank: Rank, suit: Suit) -> CardInt {
+    fn new_impl(rank: Rank, suit: Suit) -> Self {
         let prime: u32 = PRIMES[rank as usize] as u32;
         let rank_nib: u32 = (rank as u32) << 8;
         let suit_nib: u32 = (suit as u32) << 12;
