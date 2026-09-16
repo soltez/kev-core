@@ -166,19 +166,19 @@ impl Rank {
     /// `T`/`t` for Ten. Returns `None` for any unrecognised character.
     fn from_char(value: char) -> Option<Self> {
         match value {
-            'A' | 'a' => Some(Rank::Ace),
-            'K' | 'k' => Some(Rank::King),
-            'Q' | 'q' => Some(Rank::Queen),
-            'J' | 'j' => Some(Rank::Jack),
-            'T' | 't' => Some(Rank::Ten),
-            '9' => Some(Rank::Nine),
-            '8' => Some(Rank::Eight),
-            '7' => Some(Rank::Seven),
-            '6' => Some(Rank::Six),
-            '5' => Some(Rank::Five),
-            '4' => Some(Rank::Four),
-            '3' => Some(Rank::Trey),
-            '2' => Some(Rank::Deuce),
+            'A' | 'a' => Some(Self::Ace),
+            'K' | 'k' => Some(Self::King),
+            'Q' | 'q' => Some(Self::Queen),
+            'J' | 'j' => Some(Self::Jack),
+            'T' | 't' => Some(Self::Ten),
+            '9' => Some(Self::Nine),
+            '8' => Some(Self::Eight),
+            '7' => Some(Self::Seven),
+            '6' => Some(Self::Six),
+            '5' => Some(Self::Five),
+            '4' => Some(Self::Four),
+            '3' => Some(Self::Trey),
+            '2' => Some(Self::Deuce),
             _ => None,
         }
     }
@@ -250,10 +250,10 @@ impl Suit {
     /// unrecognised character.
     fn from_char(value: char) -> Option<Self> {
         match value {
-            '♤' | '♠' | 'S' | 's' => Some(Suit::Spade),
-            '♡' | '♥' | 'H' | 'h' => Some(Suit::Heart),
-            '♢' | '♦' | 'D' | 'd' => Some(Suit::Diamond),
-            '♧' | '♣' | 'C' | 'c' => Some(Suit::Club),
+            '♤' | '♠' | 'S' | 's' => Some(Self::Spade),
+            '♡' | '♥' | 'H' | 'h' => Some(Self::Heart),
+            '♢' | '♦' | 'D' | 'd' => Some(Self::Diamond),
+            '♧' | '♣' | 'C' | 'c' => Some(Self::Club),
             _ => None,
         }
     }
@@ -448,7 +448,7 @@ impl CardInt {
         let rank_nib: u32 = (*rank as u32) << 8;
         let suit_nib: u32 = (*suit as u32) << 12;
         let onehot: u32 = 1 << (*rank as u32) << 16;
-        CardInt::from_u32(prime | rank_nib | suit_nib | onehot).unwrap()
+        Self::from_u32(prime | rank_nib | suit_nib | onehot).unwrap()
     }
 
     /// Returns a compact one-byte encoding of this card.
