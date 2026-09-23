@@ -1,5 +1,5 @@
 #![no_std]
-//! # kev-rs
+//! # kev-core
 //!
 //! A Rust implementation of Cactus Kev's 32-bit card integer encoding.
 //!
@@ -24,7 +24,7 @@
 //! ## Usage
 //!
 //! ```rust
-//! use kev::CardInt;
+//! use kev_core::CardInt;
 //!
 //! let ace_of_spades = CardInt::CardAs;
 //! let ace_of_clubs = CardInt::CardAc;
