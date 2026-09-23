@@ -1,15 +1,15 @@
 [package]
-name = "kev-rs"
+name = "kev-core"
 version = "0.2.1"
 edition = "2024"
 description = "Cactus Kev's 32-bit card integer library for Rust"
 license = "LGPL-3.0-only"
-repository = "https://github.com/soltez/kev-rs"
+repository = "https://github.com/soltez/kev-core"
 
 [dependencies]
 
 [lib]
-name = "kev"
+name = "kev_core"
 
 [dev-dependencies]
 rstest = "0.25"
